@@ -40,7 +40,7 @@
                 <input type="button" value="Arttır" @click="changeCount(listItem, +1)">
                 <input type="button" value="Azalt" @click="changeCount(listItem, -1)" v-bind:disabled="listItem.isButtonDisabled">
                 <input type="button" value="Sil" @click="removeItem(mylist, key)">
-                <span>{{listItem.count}} Adet</span>
+                <span v-show="listItem.count>0">{{listItem.count}} ilave</span>
                 <input type="checkbox" v-model="listItem.itemStatus">
             </li>
         </ol>`,
