@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>VueJS Practices</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.14/dist/vue.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <form>
+            <input type="text" v-model="message" @keyup="chechInput">
+            <input type="submit" value="Listeye Ekle" @click.prevent="addItem" :disabled="isAddButtonDisabled">
+            <span>Toplam Adet: {{ listTotalCount + cartTotalCount}}</span>
+        </form>
+        <div v-if="lists.length>0">
+            <p>Listeye Eklenenler: <span>{{listTotalCount}} Adet</span></p>
+            <list :mylist="lists" :fromlist="addCartText" v-on:change-cart="itemTransfer" :newname="message"></list>
+        </div>
+
+        <div v-if="carts.length>0">
+            <p>Sepete Eklenenler: <span>{{cartTotalCount}} Adet</span></p>
+            <list :mylist="carts" :fromlist="addListText" v-on:change-cart="itemTransfer" :newname="message"></list>
+        </div>
+    </div>
+</body>
+<script>
+
+    Vue.component('list', {
+        props:['mylist', 'fromlist', 'newname'],
+        template: 
+        `<ol>
+            <li v-for="(listItem, key, index) in mylist">
+                <span>{{listItem.name}}</span>
+                <input type="button" :value="fromlist" @click="changeCart(listItem, key)">
+                <input type="button" value="Güncelle" @click="updateItem(mylist, key, newname)">
+                <input type="button" value="Arttır" @click="changeCount(listItem, +1)">
+                <input type="button" value="Azalt" @click="changeCount(listItem, -1)" v-bind:disabled="listItem.isButtonDisabled">
+                <input type="button" value="Sil" @click="removeItem(mylist, key)">
+                <span>{{listItem.count}}</span>
+            </li>
+        </ol>`,
+        methods: {
+            removeItem(items, key) {
+                items.splice(key, 1);
+            },
+            updateItem(items, key, newname) {
+                Vue.set(items[key], 'name', newname);
+            },
+            changeCart(item, key) {
+                this.$emit('change-cart', item, key)
+            },
+            changeCount(item, val){
+                item.count+=val;
+                item.count > 0 ? item.isButtonDisabled = false : item.isButtonDisabled = true;
+            }
+        }
+    })
+
+    var app = new Vue({
+        el: '#app',
+        data: {
+            message: '',
+            isAddButtonDisabled: true,
+            carts: [],
+            lists: [],
+            itemCount: 0,
+            addCartText: 'Sepete Ekle',
+            addListText: 'Listeye Ekle'
+        },
+        computed: {
+            listTotalCount: function () {
+                var listCount = 0;
+                for (var i = 0; i < this.lists.length; i++) {
+                    listCount += this.lists[i].count;
+                }
+                return listTotalCount = this.lists.length + listCount;
+            },
+            cartTotalCount: function () {
+                var cartCount = 0;
+                for (var i = 0; i < this.carts.length; i++) {
+                    cartCount += this.carts[i].count;
+                }
+                return cartTotalCount = this.carts.length + cartCount;
+            }
+        },
+        methods: {
+            chechInput(){
+                this.message.length > 0 ? this.isAddButtonDisabled = false : this.isAddButtonDisabled = true;
+            },
+            addItem() {
+                this.lists.push({ 'name': this.message, 'count': this.itemCount, 'isButtonDisabled': true, 'inList': true });
+            },
+            itemTransfer(item, key){
+                if(item.inList){
+                    this.carts.push(item);
+                    item.inList = false;
+                    this.lists.splice(key, 1);
+                }
+                else{                  
+                    this.lists.push(item);
+                    item.inList = true;
+                    this.carts.splice(key, 1);
+                }
+            }
+        }
+    })
+</script>
+
+</html>
