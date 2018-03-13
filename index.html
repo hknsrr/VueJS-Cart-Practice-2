@@ -34,26 +34,27 @@
         template: 
         `<ol>
             <li v-for="(listItem, key, index) in mylist">
-                <span>{{listItem.name}}</span>
+                <span  v-bind:class="{lineThrough: listItem.itemStatus}">{{listItem.name}}</span>
                 <input type="button" :value="fromlist" @click="changeCart(listItem, key)">
                 <input type="button" value="Güncelle" @click="updateItem(mylist, key, newname)">
                 <input type="button" value="Arttır" @click="changeCount(listItem, +1)">
                 <input type="button" value="Azalt" @click="changeCount(listItem, -1)" v-bind:disabled="listItem.isButtonDisabled">
                 <input type="button" value="Sil" @click="removeItem(mylist, key)">
-                <span>{{listItem.count}}</span>
+                <span>{{listItem.count}} Adet</span>
+                <input type="checkbox" v-model="listItem.itemStatus">
             </li>
         </ol>`,
         methods: {
-            removeItem(items, key) {
+            removeItem: function(items, key) {
                 items.splice(key, 1);
             },
-            updateItem(items, key, newname) {
+            updateItem: function(items, key, newname) {
                 Vue.set(items[key], 'name', newname);
             },
-            changeCart(item, key) {
+            changeCart: function(item, key) {
                 this.$emit('change-cart', item, key)
             },
-            changeCount(item, val){
+            changeCount: function(item, val){
                 item.count+=val;
                 item.count > 0 ? item.isButtonDisabled = false : item.isButtonDisabled = true;
             }
@@ -88,13 +89,19 @@
             }
         },
         methods: {
-            chechInput(){
+            chechInput: function(){
                 this.message.length > 0 ? this.isAddButtonDisabled = false : this.isAddButtonDisabled = true;
             },
-            addItem() {
-                this.lists.push({ 'name': this.message, 'count': this.itemCount, 'isButtonDisabled': true, 'inList': true });
+            addItem: function() {
+                this.lists.push({ 
+                    'name': this.message, 
+                    'count': this.itemCount, 
+                    'isButtonDisabled': true, 
+                    'inList': true,
+                    'itemstatus': false
+                });
             },
-            itemTransfer(item, key){
+            itemTransfer: function(item, key){
                 if(item.inList){
                     this.carts.push(item);
                     item.inList = false;
@@ -109,5 +116,12 @@
         }
     })
 </script>
+
+<style>
+    .lineThrough{
+        text-decoration: line-through;
+    }
+
+</style>
 
 </html>
